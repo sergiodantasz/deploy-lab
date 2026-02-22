@@ -15,6 +15,9 @@ dependencies = [
 [dependency-groups]
 dev = ["ruff>=0.15.2"]
 
+[tool.ruff.lint]
+ignore = ['F401']
+
 [tool.ruff.format]
 quote-style = "single"
 line-ending = "lf"
