@@ -1,0 +1,16 @@
+[project]
+name = "deploy-lab"
+version = "0.1.0"
+description = "Personal reference for application deployments on Linux. "
+authors = [{ name = "Sérgio Dantas", email = "sergiodnts828@gmail.com" }]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = ["ruff>=0.15.2"]
+
+[tool.ruff.format]
+quote-style = "single"
+line-ending = "lf"
