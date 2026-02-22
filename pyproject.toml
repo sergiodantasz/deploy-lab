@@ -6,7 +6,11 @@ authors = [{ name = "Sérgio Dantas", email = "sergiodnts828@gmail.com" }]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "django>=6.0.2",
+    "django-environ>=0.13.0",
+    "djangorestframework>=3.16.1",
+]
 
 [dependency-groups]
 dev = ["ruff>=0.15.2"]
