@@ -29,7 +29,16 @@ ROOT_URLCONF = 'core.urls'
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-DATABASES = {'default': env.db_url()}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env.str('POSTGRES_DB'),
+        'USER': env.str('POSTGRES_USER'),
+        'PASSWORD': env.str('POSTGRES_PASSWORD'),
+        'HOST': env.str('POSTGRES_HOST', default='localhost'),
+        'PORT': env.str('POSTGRES_PORT', default='5432'),
+    }
+}
 
 LANGUAGE_CODE = 'en-us'
 
