@@ -9,3 +9,7 @@ See [APPLICATION.md](APPLICATION.md) for information about the application examp
 ## Docker
 
 See [DOCKER.md](DOCKER.md) for useful Docker commands.
+
+## Server
+
+See [SERVER.md](SERVER.md) for server configuration.
