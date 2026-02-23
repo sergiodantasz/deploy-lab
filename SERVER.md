@@ -64,7 +64,6 @@ ssh deploy-lab
 Update packages and clean up:
 
 ```bash
-# Update, upgrade, and remove unused packages
 sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo snap refresh
 ```
 
