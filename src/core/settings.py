@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from environ import Env
+from environ import FileAwareEnv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = Env()
+env = FileAwareEnv()
 env.read_env(BASE_DIR.parent / '.env', True)
 
 SECRET_KEY = env.str('SECRET_KEY')
