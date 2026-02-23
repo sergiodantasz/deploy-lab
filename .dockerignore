@@ -13,9 +13,7 @@ __pycache__/
 .gitignore
 
 # Documentation
-DOCKER.md
-LICENSE
-README.md
+*.md
 
 # Docker
 .dockerignore
