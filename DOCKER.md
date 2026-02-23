@@ -1,6 +1,6 @@
 # Docker
 
-Here it is listed some useful Docker commands and what they do.
+Below are useful Docker commands and what they do.
 
 ## Container listing
 
@@ -34,7 +34,7 @@ Here it is listed some useful Docker commands and what they do.
   Removes a stopped container.
 
 - `docker rm -f <container>`
-  Force removes a container (even if running).
+  Force-removes a container (even if running).
 
 ## Running containers
 
@@ -44,19 +44,19 @@ Here it is listed some useful Docker commands and what they do.
 ### Common flags
 
 - `docker run -it <image>`
-  Interactive terminal (`-i` keep stdin, `-t` pseudo-tty).
+  Interactive terminal (`-i` keeps stdin open, `-t` allocates a pseudo-TTY).
 
 - `docker run -d <image>`
-  Runs container in detached/background mode.
+  Runs the container in detached or background mode.
 
 - `docker run --name mycontainer <image>`
   Assigns a custom container name.
 
 - `docker run -p 8080:80 <image>`
-  Maps port host:container.
+  Maps host port to container port (host:container).
 
 - `docker run --rm <image>`
-  Automatically removes container after it stops.
+  Automatically removes the container after it stops.
 
 ## Logs and inspection
 
@@ -70,7 +70,7 @@ Here it is listed some useful Docker commands and what they do.
   Shows detailed container information in JSON.
 
 - `docker stats`
-  Displays live CPU / memory usage.
+  Displays live CPU and memory usage.
 
 ## Executing commands inside containers
 
@@ -86,7 +86,7 @@ Here it is listed some useful Docker commands and what they do.
   Lists local images.
 
 - `docker pull <image>`
-  Downloads an image from registry.
+  Downloads an image from a registry.
 
 - `docker rmi <image>`
   Removes an image.
@@ -97,10 +97,10 @@ Here it is listed some useful Docker commands and what they do.
   Builds an image from the `Dockerfile` in the current directory.
 
 - `docker build -t myimage .`
-  Builds and assigns a name/tag to the image.
+  Builds and assigns a name and tag to the image.
 
 - `docker build -t myimage:1.0 .`
-  Builds and tags with a specific version.
+  Builds and tags the image with a specific version.
 
 - `docker build -f Dockerfile.dev .`
   Uses a custom Dockerfile.
@@ -119,7 +119,7 @@ docker build .
 
 The `.` specifies the build context.
 
-It means Docker will use the current directory (in that case) as the build context and only files inside this directory (and its subdirectories) can be accessed by the Docker build (for example via `COPY` or `ADD`).
+It means Docker uses the current directory as the build context, and only files inside this directory (and its subdirectories) can be accessed during the build (for example via `COPY` or `ADD`).
 
 Example:
 
@@ -165,7 +165,7 @@ Remove unused dangling images:
 docker image prune
 ```
 
-Remove all unused images (not used by any container):
+Remove all images not used by any container:
 
 ```
 docker image prune -a
