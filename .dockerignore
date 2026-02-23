@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+.python-version
+.venv/
+
+# Environment
+.env
+.env.example
+
+# Git
+.git
+.gitattributes
+.gitignore
+
+# Documentation
+DOCKER.md
+LICENSE
+README.md
+
+# Docker
+.dockerignore
+Dockerfile
+compose.yaml
