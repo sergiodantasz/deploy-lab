@@ -65,10 +65,7 @@ Update packages and clean up:
 
 ```bash
 # Update, upgrade, and remove unused packages
-sudo apt update
-sudo apt upgrade -y
-sudo apt autoremove -y
-sudo snap refresh
+sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo snap refresh
 ```
 
 Reboot the system. After it comes back up, log in again via SSH.
@@ -237,8 +234,7 @@ Add Docker’s APT repository and install the packages:
 
 ```bash
 # Install prerequisites
-sudo apt update
-sudo apt install -y ca-certificates curl
+sudo apt update && sudo apt install -y ca-certificates curl
 
 # Add Docker’s official GPG key
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -254,9 +250,8 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
-# Refresh package lists and install Docker
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# Install Docker
+sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Allow your user to run Docker without sudo
 sudo usermod --append --groups docker sergio
