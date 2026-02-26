@@ -52,12 +52,10 @@ RUN \
 COPY --from=builder --chown=app:app /python /python
 COPY --from=builder --chown=app:app /app /app
 
-RUN find /app/scripts -type f -exec chmod +x {} \;
-
 ENV PATH="/app/.venv/bin:$PATH"
 
 USER app
 
 WORKDIR /app
 
-ENTRYPOINT [ "./scripts/entrypoint.sh" ]
+ENTRYPOINT [ "./scripts/app-entrypoint.sh" ]
