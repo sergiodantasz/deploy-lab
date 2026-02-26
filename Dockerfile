@@ -32,6 +32,9 @@ RUN \
 
 FROM debian:trixie-slim AS development
 
+ARG CURRENT_ENV
+ENV CURRENT_ENV=${CURRENT_ENV}
+
 ENV PYTHONUNBUFFERED=1
 
 RUN \
