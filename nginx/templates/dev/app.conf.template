@@ -3,7 +3,7 @@ resolver 127.0.0.11 valid=10s ipv6=off;
 upstream backend {
     zone backend 64K;
     least_conn;
-    server ${BACKEND_SERVICE_NAME}:8000 resolve;
+    server ${NGINX_UPSTREAM_SERVICE}:8000 resolve;
     keepalive 32;
 }
 
