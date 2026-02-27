@@ -1,0 +1,37 @@
+services:
+  nginx:
+    image: nginx:1.29.5-alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf.d/prod:/etc/nginx/conf.d:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./scripts/nginx-entrypoint.sh:/scripts/nginx-entrypoint.sh:ro
+      - ./scripts/log.sh:/scripts/log.sh:ro
+    entrypoint: ["/scripts/nginx-entrypoint.sh"]
+    env_file:
+      - ./.env
+    depends_on:
+      deploy-lab:
+        condition: service_healthy
+    networks:
+      - internal
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - ./certbot/www:/var/www/certbot:rw
+      - ./certbot/conf:/etc/letsencrypt:rw
+      - ./scripts/certbot-entrypoint.sh:/scripts/certbot-entrypoint.sh:ro
+      - ./scripts/log.sh:/scripts/log.sh:ro
+    entrypoint: ["/scripts/certbot-entrypoint.sh"]
+    env_file:
+      - ./.env
+    depends_on:
+      - nginx
+    networks:
+      - internal
