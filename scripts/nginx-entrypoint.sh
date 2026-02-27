@@ -3,13 +3,12 @@
 set -eu
 
 : "${CURRENT_ENV:?"CURRENT_ENV not defined."}"
+: "${DOMAIN:?"DOMAIN not defined."}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/log.sh"
 
 if [ "$CURRENT_ENV" = "development" ]; then
-  DOMAIN="${DOMAIN:-localhost}"
-
   CERT_DIR="/etc/nginx/certs"
   CRT="${CERT_DIR}/dev.crt"
   KEY="${CERT_DIR}/dev.key"
@@ -35,7 +34,6 @@ if [ "$CURRENT_ENV" = "development" ]; then
     nginx_log "Reusing existing development self-signed certificate for ${DOMAIN}."
   fi
 elif [ "$CURRENT_ENV" = "production" ]; then
-  : "${DOMAIN:?"DOMAIN not defined."}"
   nginx_log "Using externally managed certificates for ${DOMAIN} (no self-signed generation)."
 else
   nginx_log "Unsupported CURRENT_ENV='${CURRENT_ENV}'. Expected 'development' or 'production'."
