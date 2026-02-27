@@ -1,6 +1,8 @@
 services:
   nginx:
-    image: nginx:1.29.5-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     container_name: nginx
     restart: unless-stopped
     ports:
@@ -9,9 +11,6 @@ services:
     volumes:
       - ./nginx/conf.d/dev:/etc/nginx/conf.d:ro
       - ./nginx/certs:/etc/nginx/certs:rw
-      - ./scripts/nginx-entrypoint.sh:/scripts/nginx-entrypoint.sh:ro
-      - ./scripts/log.sh:/scripts/log.sh:ro
-    entrypoint: ["/scripts/nginx-entrypoint.sh"]
     env_file:
       - ./.env
     depends_on:

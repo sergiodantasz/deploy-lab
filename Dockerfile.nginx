@@ -1,0 +1,8 @@
+FROM nginx:1.29.5-alpine
+
+COPY scripts/log.sh /scripts/log.sh
+COPY scripts/nginx-entrypoint.sh /scripts/nginx-entrypoint.sh
+
+RUN chmod +x /scripts/nginx-entrypoint.sh /scripts/log.sh
+
+ENTRYPOINT [ "/scripts/nginx-entrypoint.sh" ]

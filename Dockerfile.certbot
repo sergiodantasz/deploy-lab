@@ -1,0 +1,8 @@
+FROM certbot/certbot:latest
+
+COPY scripts/log.sh /scripts/log.sh
+COPY scripts/certbot-entrypoint.sh /scripts/certbot-entrypoint.sh
+
+RUN chmod +x /scripts/certbot-entrypoint.sh /scripts/log.sh
+
+ENTRYPOINT [ "/scripts/certbot-entrypoint.sh" ]
