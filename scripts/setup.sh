@@ -13,6 +13,15 @@ if [ -f "$ROOT/.env" ]; then
   set +a
 fi
 
+setup_log "Current CURRENT_ENV           : ${CURRENT_ENV-<undefined>}"
+setup_log "Current DOMAIN                : ${DOMAIN-<undefined>}"
+setup_log "Current NGINX_UPSTREAM_SERVICE: ${NGINX_UPSTREAM_SERVICE-<undefined>}"
+setup_prompt "Do you want to run setup with these values? [y/N]:" CONFIRM_SETUP
+if [ "$CONFIRM_SETUP" != "y" ] && [ "$CONFIRM_SETUP" != "Y" ]; then
+  setup_log "Setup cancelled by user."
+  exit 0
+fi
+
 if [ "$CURRENT_ENV" = "development" ]; then
   ENV_DIR=dev
 elif [ "$CURRENT_ENV" = "production" ]; then

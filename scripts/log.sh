@@ -30,6 +30,12 @@ setup_log() {
   log "setup" "$1" "$BLUE"
 }
 
+setup_prompt() {
+  local message="$1" var_name="$2"
+  printf "%b[%s]%b %s " "${BLUE}${BOLD}" "setup" "$RESET" "$message"
+  read -r "$var_name"
+}
+
 cleanup_log() {
   log "cleanup" "$1" "$RED"
 }
