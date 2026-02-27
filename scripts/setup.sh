@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/log.sh"
@@ -41,25 +41,19 @@ render_template() {
   done < "$f" > "$out"
 }
 
+TEMPLATE_BASENAME=""
+
 if [ "$CURRENT_ENV" = "production" ]; then
   CERTBOT_CONF="$ROOT/certbot/conf"
   CERT_FILE="${CERTBOT_CONF}/live/${DOMAIN}/fullchain.pem"
 
   if [ -f "$CERT_FILE" ]; then
-    PROD_TEMPLATES=( "app.conf" )
+    TEMPLATE_BASENAME="app.conf"
     setup_log "Certificate found at ${CERT_FILE}; using app template"
   else
-    PROD_TEMPLATES=( "challenge.conf" )
+    TEMPLATE_BASENAME="challenge.conf"
     setup_log "No certificate at ${CERT_FILE}; using challenge template only (run certbot to obtain cert)"
   fi
-
-  rm -f "${DEST}"/*.conf
-  for name in "${PROD_TEMPLATES[@]}"; do
-    f="${SRC}/${name}.template"
-    [ -f "$f" ] || { setup_log "Template not found: $f" >&2; exit 1; }
-    render_template "$f" "${DEST}/${name}"
-  done
-
 else
   DEV_CERT_DIR="$ROOT/nginx/certs"
   DEV_CRT="${DEV_CERT_DIR}/dev.crt"
@@ -71,12 +65,14 @@ else
     setup_log "Development certificate not found. It will be generated on nginx startup."
   fi
 
-  for f in "${SRC}"/*.conf.template; do
-    [ -f "$f" ] || continue
-    out_name="$(basename "$f" .template)"
-    render_template "$f" "${DEST}/${out_name}"
-  done
+  TEMPLATE_BASENAME="app.conf"
 fi
+
+rm -f "${DEST}"/*.conf
+
+f="${SRC}/${TEMPLATE_BASENAME}.template"
+[ -f "$f" ] || { setup_log "Template not found: $f" >&2; exit 1; }
+render_template "$f" "${DEST}/${TEMPLATE_BASENAME}"
 
 setup_log "Nginx configuration ready!"
 setup_log "  - Templates  : ${SRC} → ${DEST}"
