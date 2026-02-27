@@ -12,13 +12,19 @@ __pycache__/
 .gitattributes
 .gitignore
 
+# GitHub
+.github/
+
 # Documentation
 *.md
+LICENSE
 
 # Docker
 .dockerignore
 Dockerfile
+Dockerfile.*
 compose.yaml
+compose.*.yaml
 
 # Certbot
 certbot/
