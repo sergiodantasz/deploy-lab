@@ -10,6 +10,7 @@ env.read_env(BASE_DIR.parent / '.env', True)
 SECRET_KEY = env.str('SECRET_KEY')
 
 DEBUG = env.bool('DEBUG')
+CURRENT_ENV = env.str('CURRENT_ENV')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
@@ -23,6 +24,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -51,3 +54,16 @@ USE_TZ = True
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
 }
+
+if CURRENT_ENV == 'production':
+    DEBUG = False
+
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 86400
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
