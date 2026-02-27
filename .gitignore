@@ -8,3 +8,6 @@ __pycache__/
 # Nginx files
 nginx/certs/
 nginx/conf.d/
+
+# Certbot files
+certbot/
