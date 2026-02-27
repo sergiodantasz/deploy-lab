@@ -22,7 +22,7 @@ Generate a new SSH key:
 # Generate an ED25519 key
 ssh-keygen -t ed25519 -C "sergio" -f ~/.ssh/deploy-lab
 
-# Print the public key and add it to your VM (e.g. in the provider’s dashboard)
+# Print the public key and copy it
 cat ~/.ssh/deploy-lab.pub
 ```
 
