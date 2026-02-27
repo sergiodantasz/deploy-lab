@@ -31,10 +31,12 @@ services:
             - __pycache__/
         - path: ./uv.lock
           action: rebuild
+    volumes:
+      - migrate-state:/migrate-state
     networks:
       internal:
         aliases:
-          - ${BACKEND_SERVICE_NAME}
+          - ${NGINX_UPSTREAM_SERVICE}
   psql:
     image: postgres:18
     container_name: psql
@@ -56,6 +58,8 @@ services:
       - internal
 volumes:
   postgres-data:
+    driver: local
+  migrate-state:
     driver: local
 networks:
   internal:

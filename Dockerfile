@@ -49,6 +49,8 @@ RUN \
   groupadd --gid 1000 app && \
   useradd --uid 1000 --gid app --shell /bin/bash --create-home app
 
+RUN mkdir -p /migrate-state && chown app:app /migrate-state
+
 COPY --from=builder --chown=app:app /python /python
 COPY --from=builder --chown=app:app /app /app
 
