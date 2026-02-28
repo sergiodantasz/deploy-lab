@@ -31,8 +31,7 @@ GET /health/
 
 ```json
 {
-  "status": "ok",
-  "uptime": 123
+  "status": "ok"
 }
 ```
 
@@ -40,8 +39,6 @@ GET /health/
 
 - `ok` — the application is healthy and operational
 - `error` — one or more internal checks failed (for example, database unavailable)
-
-The `uptime` field represents the number of seconds since the application process started.
 
 This endpoint is intended for monitoring tools, container health checks, load balancers, and deployment verification.
 
