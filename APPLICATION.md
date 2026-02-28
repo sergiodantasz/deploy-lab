@@ -6,7 +6,7 @@ The application simulates a simple task management service, allowing clients to 
 
 Project dependencies are managed using **uv** to install, lock, and synchronize the Python environment.
 
-### API
+## API
 
 | Action        | HTTP method | Endpoint           |
 | ------------- | ----------- | ------------------ |
@@ -17,7 +17,7 @@ Project dependencies are managed using **uv** to install, lock, and synchronize 
 | Update task   | `PATCH`     | `/api/tasks/{id}/` |
 | Delete task   | `DELETE`    | `/api/tasks/{id}/` |
 
-### Health check
+## Health check
 
 The service exposes a health check endpoint used to verify whether the application is running correctly and able to access its dependencies (such as the database).
 
@@ -45,11 +45,29 @@ The `uptime` field represents the number of seconds since the application proces
 
 This endpoint is intended for monitoring tools, container health checks, load balancers, and deployment verification.
 
-### Usage example
+## Run locally with Docker
 
-The following are example `curl` requests for a local instance running on `localhost`.
+To run the application on your machine using Docker (app + PostgreSQL + Nginx with a self-signed certificate), copy `.env.example` to `.env` and set `CURRENT_ENV=development`. Adjust other values if needed (e.g. database password). From the project root, run the setup script so Nginx gets the development config and certificates:
 
-#### Create a task
+```bash
+./scripts/setup.sh
+```
+
+Then start the stack. For local development, use `--watch` instead of `-d` so that code changes are synced into the container and the app restarts automatically:
+
+```bash
+docker compose -f compose.yaml -f compose.dev.yaml up --watch --build
+```
+
+Open `https://localhost` in the browser (accept the self-signed cert) or use `curl -k https://localhost/health/`. The API is under `https://localhost/api/` (e.g. `https://localhost/api/tasks/`). The process stays in the foreground and shows logs; press Ctrl+C to stop. If you prefer a detached run without watching, use `up -d --build` instead.
+
+For more detail (verification, production setup), see [DEPLOY.md](DEPLOY.md).
+
+## Usage example
+
+The following are example `curl` requests for a local instance. If you ran the stack with Nginx (see [Run locally with Docker](#run-locally-with-docker)), use `https://localhost` and the paths below (e.g. `https://localhost/api/tasks/`). If the app is exposed directly on port 8000, use `http://localhost:8000` instead.
+
+### Create a task
 
 ```bash
 curl -X POST http://localhost:8000/api/tasks/ \
@@ -57,19 +75,19 @@ curl -X POST http://localhost:8000/api/tasks/ \
   -d '{"title":"Study Django","done":false}'
 ```
 
-#### List all tasks
+### List all tasks
 
 ```bash
 curl http://localhost:8000/api/tasks/
 ```
 
-#### Retrieve a single task
+### Retrieve a single task
 
 ```bash
 curl http://localhost:8000/api/tasks/1/
 ```
 
-#### Update a task partially
+### Update a task partially
 
 ```bash
 curl -X PATCH http://localhost:8000/api/tasks/1/ \
@@ -77,7 +95,7 @@ curl -X PATCH http://localhost:8000/api/tasks/1/ \
   -d '{"done":true}'
 ```
 
-#### Replace a task completely
+### Replace a task completely
 
 ```bash
 curl -X PUT http://localhost:8000/api/tasks/1/ \
@@ -85,13 +103,13 @@ curl -X PUT http://localhost:8000/api/tasks/1/ \
   -d '{"title":"Study DRF","done":true}'
 ```
 
-#### Delete a task
+### Delete a task
 
 ```bash
 curl -X DELETE http://localhost:8000/api/tasks/1/
 ```
 
-#### Check service health
+### Check service health
 
 ```bash
 curl http://localhost:8000/health/
