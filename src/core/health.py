@@ -21,12 +21,9 @@ def database_ok() -> bool:
 def health(request):
     ok = database_ok()
 
-    uptime_seconds = int(time.time() - START_TIME)
-
     return Response(
         {
             'status': 'ok' if ok else 'error',
-            'uptime': uptime_seconds,
         },
         status=200 if ok else 503,
     )
