@@ -15,7 +15,10 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ruff>=0.15.2"]
+dev = ["pytest>=8.0", "pytest-django>=4.9", "ruff>=0.15.2"]
+
+[tool.ruff]
+exclude = ["**/migrations/**"]
 
 [tool.ruff.lint]
 ignore = ['F401']
@@ -23,3 +26,9 @@ ignore = ['F401']
 [tool.ruff.format]
 quote-style = "single"
 line-ending = "lf"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-v"
+DJANGO_SETTINGS_MODULE = "core.settings"
+python_files = ["test_*.py", "tests.py"]
