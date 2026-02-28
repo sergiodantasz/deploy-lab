@@ -37,6 +37,6 @@ if [[ ! -f compose.yaml && ! -f compose.prod.yaml && ! -f compose.dev.yaml ]]; t
   exit 1
 fi
 
-sudo docker compose up -d --build --remove-orphans
+sudo docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 
 log_success "deployed $(git rev-parse --short HEAD)"
