@@ -247,7 +247,7 @@ sudo chgrp -R certbot-access certbot
 sudo chmod -R g+X certbot
 ```
 
-After re-logging into the server (so the new group membership takes effect), rerun the setup and restart Nginx:
+After re-logging into the server (so the new group membership takes effect), rerun the setup:
 
 ```bash
 # Re-render Nginx configuration for production (now using app.conf)
