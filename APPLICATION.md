@@ -59,7 +59,7 @@ source .venv/bin/activate
 pytest src/ -v
 ```
 
-CI (`.github/workflows/ci.yaml`) runs on every push and pull request to `main`: Ruff lint/format, Django check, migrations, and tests. Deploy (`.github/workflows/deploy.yaml`) runs only after CI passes.
+The **Build and Deploy** workflow (`.github/workflows/build-and-deploy.yaml`) runs on every push and pull request to `main`: the `ci` job runs Ruff lint/format, Django check, migrations, and tests; the `deploy` job runs only after CI passes on push to `main`.
 
 ## Run locally with Docker
 

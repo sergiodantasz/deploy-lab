@@ -295,14 +295,14 @@ docker compose -f compose.yaml -f compose.prod.yaml down
 
 ## GitHub Actions
 
-This repository uses two workflows:
+This repository uses a single workflow (`.github/workflows/build-and-deploy.yaml`), named **Build and Deploy**, with two jobs:
 
-- **CI** (`.github/workflows/ci.yaml`) — Runs on every push and pull request to `main`: Ruff lint/format, Django check, migrations, and tests. No secrets required.
-- **Deploy** (`.github/workflows/deploy.yaml`) — Runs only after CI passes on `main`. Connects to the server via SSH and runs the deploy script.
+- **`ci`** — Runs on every push and pull request to `main`: Ruff lint/format, Django check, migrations, and tests. No secrets required.
+- **`deploy`** — Runs only after the previous job succeeds on push to `main`. Connects to the server via SSH and runs the deploy script.
 
-The deploy workflow does not run if CI fails. To configure the deploy workflow, follow the steps below.
+The `deploy` job does not run if the previous job fails. To configure the workflow, follow the steps below.
 
-### Deploy workflow setup
+### Workflow setup
 
 Firstly, let's login with the `deploy` user created earlier.
 
@@ -338,7 +338,7 @@ git config --global --add safe.directory /deploy-lab
 
 ### SSH key for the GitHub Action
 
-The deploy workflow connects to the server via SSH as the `deploy` user (using `appleboy/ssh-action`). You need a dedicated key pair: the **private** key is stored in a GitHub Actions secret; the **public** key is added to the `deploy` user’s `authorized_keys` on the server.
+The `deploy` job authenticates over SSH as the `deploy` user (via `appleboy/ssh-action`). You need a dedicated key pair: the **private** key goes into a GitHub Actions secret; the **public** key goes into the `deploy` user’s `authorized_keys` on the server.
 
 #### Generate the key on your local machine
 
@@ -380,7 +380,7 @@ command="/usr/local/bin/deploy.sh",restrict,no-port-forwarding,no-agent-forwardi
 
 ### GitHub Actions secrets
 
-The deploy workflow reads connection details and the private key from repository secrets. In the repository, go to **Settings → Secrets and variables → Actions** and create a **New repository secret** for each of the following; the names must match what the workflow uses.
+The `deploy` job reads connection details and the private key from repository secrets. In the repository, go to **Settings → Secrets and variables → Actions** and create a **New repository secret** for each of the following; the names must match what the workflow uses.
 
 | Secret   | Description                                                               |
 | -------- | ------------------------------------------------------------------------- |
@@ -430,37 +430,46 @@ Cmnd_Alias DOCKER_COMPOSE_UP = /usr/bin/docker compose -f compose.yaml -f compos
 deploy ALL=(root) NOPASSWD: DOCKER_COMPOSE_UP
 ```
 
-### CI workflow
+### Build and Deploy workflow
 
-The deploy workflow runs only after CI passes. If you are setting up this repository from scratch, the CI workflow file will not exist yet. Create it first.
-
-Create `.github/workflows/ci.yaml` (create the `.github/workflows` directory if needed) and paste:
+If you are setting up this repository from scratch, the workflow file will not exist yet. Create `.github/workflows/build-and-deploy.yaml` (create the `.github/workflows` directory if needed) and paste:
 
 ```yaml
-name: CI
+name: Build and Deploy
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
   ci:
+    name: Lint, check & test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    env:
+      CI: "1"
+      SECRET_KEY: ci-secret-key-for-testing-only
+      DEBUG: "ON"
+      ALLOWED_HOSTS: "*"
+      CURRENT_ENV: development
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          version: "v0.9.29"
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        run: uv python install 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: pyproject.toml
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Install dependencies
         run: uv sync --locked
-        working-directory: .
 
       - name: Ruff check
         run: uv run ruff check src/
@@ -469,54 +478,18 @@ jobs:
         run: uv run ruff format --check src/
 
       - name: Django check
-        env:
-          CI: "1"
-          SECRET_KEY: ci-secret-key-for-testing-only
-          DEBUG: "ON"
-          ALLOWED_HOSTS: "*"
-          CURRENT_ENV: development
         run: uv run python src/manage.py check
-        working-directory: .
 
       - name: Run migrations (verify)
-        env:
-          CI: "1"
-          SECRET_KEY: ci-secret-key-for-testing-only
-          DEBUG: "ON"
-          ALLOWED_HOSTS: "*"
-          CURRENT_ENV: development
         run: uv run python src/manage.py migrate --noinput
-        working-directory: .
 
       - name: Run tests
-        env:
-          CI: "1"
-          SECRET_KEY: ci-secret-key-for-testing-only
-          DEBUG: "ON"
-          ALLOWED_HOSTS: "*"
-          CURRENT_ENV: development
         run: uv run pytest src/
-        working-directory: .
-```
 
-Commit and push. Verify the CI workflow runs in the **Actions** tab. No secrets are required for CI.
-
-### Deploy workflow (after CI passes)
-
-When CI completes successfully on `main`, the deploy workflow connects to your server via SSH (using the `appleboy/ssh-action`) and runs `deploy.sh`, which updates the repo and brings up Docker Compose. Ensure the secrets **HOST**, **USER**, **KEY**, and **PORT** are set in the repository (see [GitHub Actions secrets](#github-actions-secrets)).
-
-Create `.github/workflows/deploy.yaml` with:
-
-```yaml
-name: Deploy
-on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
-    branches: [main]
-jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success'
+    name: Deploy to server
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Run deploy script on server
@@ -529,9 +502,13 @@ jobs:
           script: deploy.sh
 ```
 
-### Test the deploy workflow
+The `ci` job runs on every push and pull request; no secrets are required. The `deploy` job runs only when the `ci` job succeeds on push to `main`. It runs `deploy.sh` remotely, which pulls the latest code and brings up the Docker Compose stack. Ensure the secrets **HOST**, **USER**, **KEY**, and **PORT** are set in the repository (see [GitHub Actions secrets](#github-actions-secrets)).
 
-Push a commit to the `main` branch (or merge a PR). The CI workflow runs first; when it completes successfully, the Deploy workflow runs. Open **Actions** in the repository and confirm both workflows succeed.
+Commit and push. Verify the workflow runs in the **Actions** tab.
+
+### Test the workflow
+
+Push a commit to the `main` branch (or merge a PR). The `ci` job runs first; when it completes successfully, the `deploy` job runs. Open **Actions** in the repository and confirm both jobs succeed.
 
 Optionally, on the server, check that the app is on the expected commit and that the health endpoint responds:
 

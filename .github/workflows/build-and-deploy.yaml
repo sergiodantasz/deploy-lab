@@ -1,12 +1,24 @@
-name: CI
+name: Build and Deploy
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
   ci:
+    name: Lint, check & test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    env:
+      CI: "1"
+      SECRET_KEY: ci-secret-key-for-testing-only
+      DEBUG: "ON"
+      ALLOWED_HOSTS: "*"
+      CURRENT_ENV: development
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -21,7 +33,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --locked
-        working-directory: .
 
       - name: Ruff check
         run: uv run ruff check src/
@@ -30,31 +41,25 @@ jobs:
         run: uv run ruff format --check src/
 
       - name: Django check
-        env:
-          CI: "1"
-          SECRET_KEY: ci-secret-key-for-testing-only
-          DEBUG: "ON"
-          ALLOWED_HOSTS: "*"
-          CURRENT_ENV: development
         run: uv run python src/manage.py check
-        working-directory: .
 
       - name: Run migrations (verify)
-        env:
-          CI: "1"
-          SECRET_KEY: ci-secret-key-for-testing-only
-          DEBUG: "ON"
-          ALLOWED_HOSTS: "*"
-          CURRENT_ENV: development
         run: uv run python src/manage.py migrate --noinput
-        working-directory: .
 
       - name: Run tests
-        env:
-          CI: "1"
-          SECRET_KEY: ci-secret-key-for-testing-only
-          DEBUG: "ON"
-          ALLOWED_HOSTS: "*"
-          CURRENT_ENV: development
         run: uv run pytest src/
-        working-directory: .
+
+  deploy:
+    name: Deploy to server
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run deploy script on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: deploy.sh

@@ -16,7 +16,7 @@ Use this repo as a step-by-step guide: start with the server setup, run the app 
 
 ### Deploy
 
-[DEPLOY.md](DEPLOY.md) — Walks through CD from an empty server to a live app. Covers Git safe directory, deploy key for GitHub, environment variables and `.env`, Nginx config and dummy SSL for development, running the stack in dev and production, TLS with Let's Encrypt/Certbot, the `deploy` user and restricted SSH key for GitHub Actions, and the workflows: CI (lint, format, Django check, migrations, tests) runs on push/PR; Deploy runs on `main` only after CI passes.
+[DEPLOY.md](DEPLOY.md) — Walks through CD from an empty server to a live app. Covers Git safe directory, deploy key for GitHub, environment variables and `.env`, Nginx config and dummy SSL for development, running the stack in dev and production, TLS with Let's Encrypt/Certbot, the `deploy` user and restricted SSH key for GitHub Actions, and the **Build and Deploy** workflow: the `ci` job (lint, format, Django check, migrations, tests) runs on push/PR; the `deploy` job runs on `main` only after CI passes.
 
 ### Docker
 
