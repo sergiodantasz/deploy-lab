@@ -1,0 +1,60 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "v0.9.29"
+
+      - name: Set up Python
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        run: uv sync --locked
+        working-directory: .
+
+      - name: Ruff check
+        run: uv run ruff check src/
+
+      - name: Ruff format
+        run: uv run ruff format --check src/
+
+      - name: Django check
+        env:
+          CI: "1"
+          SECRET_KEY: ci-secret-key-for-testing-only
+          DEBUG: "ON"
+          ALLOWED_HOSTS: "*"
+          CURRENT_ENV: development
+        run: uv run python src/manage.py check
+        working-directory: .
+
+      - name: Run migrations (verify)
+        env:
+          CI: "1"
+          SECRET_KEY: ci-secret-key-for-testing-only
+          DEBUG: "ON"
+          ALLOWED_HOSTS: "*"
+          CURRENT_ENV: development
+        run: uv run python src/manage.py migrate --noinput
+        working-directory: .
+
+      - name: Run tests
+        env:
+          CI: "1"
+          SECRET_KEY: ci-secret-key-for-testing-only
+          DEBUG: "ON"
+          ALLOWED_HOSTS: "*"
+          CURRENT_ENV: development
+        run: uv run pytest src/
+        working-directory: .
