@@ -2,6 +2,9 @@
 
 This document describes the configuration used for the production server.
 
+> [!TIP]
+> If you are a student, you can use free credits on Azure (via [Azure for Students](https://azure.microsoft.com/free/students/)) to create and host the VM.
+
 ## VM requirements
 
 The virtual machine should have at least:
