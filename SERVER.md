@@ -46,11 +46,17 @@ Host github.com
 # Your other hosts here...
 
 Host deploy-lab
-  HostName <your-vm-ip-or-domain>
+  HostName <your-server-ip-or-domain>
   User sergio
   Port 22
   IdentityFile ~/.ssh/deploy-lab
   IdentitiesOnly yes
+```
+
+Then restrict permissions on the SSH config file:
+
+```bash
+chmod 600 ~/.ssh/config
 ```
 
 Then connect with:
