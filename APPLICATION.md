@@ -75,7 +75,7 @@ Then start the stack. For local development, use `--watch` instead of `-d` so th
 docker compose -f compose.yaml -f compose.dev.yaml up --watch --build
 ```
 
-Open `https://localhost` in the browser (accept the self-signed cert) or use `curl -k https://localhost/health/`. The API is under `https://localhost/api/` (e.g. `https://localhost/api/tasks/`). The process stays in the foreground and shows logs; press Ctrl+C to stop. If you prefer a detached run without watching, use `up -d --build` instead.
+Open `https://localhost` in the browser (accept the self-signed cert) or use `curl -k https://localhost/health/`. The API is under `https://localhost/api/` (e.g. `https://localhost/api/tasks/`). The process stays in the foreground and shows logs; press <kbd>Ctrl</kbd> + <kbd>C</kbd> to stop. If you prefer a detached run without watching, use `up -d --build` instead.
 
 For more detail (verification, production setup), see [DEPLOY.md](DEPLOY.md).
 
