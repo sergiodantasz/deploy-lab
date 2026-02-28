@@ -5,6 +5,11 @@ __pycache__/
 .python-version
 .venv/
 
+# Tests
+**/tests.py
+**/test_*.py
+**/conftest.py
+
 # Environment
 .env
 .env.example
