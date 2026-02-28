@@ -1,3 +1,4 @@
+from os import environ
 from pathlib import Path
 
 from environ import FileAwareEnv
@@ -42,6 +43,12 @@ DATABASES = {
         'PORT': env.str('POSTGRES_PORT', default='5432'),
     }
 }
+
+if environ.get('CI'):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
 
 LANGUAGE_CODE = 'en-us'
 
