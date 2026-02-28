@@ -1,0 +1,15 @@
+[Unit]
+Description=Start deploy-lab Docker Compose stack
+Documentation=https://github.com/sergiodantasz/deploy-lab
+After=docker.service network-online.target
+Wants=docker.service network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/deploy-lab
+ExecStart=/usr/bin/docker compose -f compose.yaml -f compose.prod.yaml up -d
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
