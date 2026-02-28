@@ -1,4 +1,6 @@
 services:
+  psql:
+    ports: []
   nginx:
     build:
       context: .
