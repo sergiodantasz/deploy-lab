@@ -13,7 +13,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name ${DOMAIN};
+    server_name ${DOMAINS};
 
     server_tokens off;
 
@@ -33,12 +33,12 @@ server {
 
     http2 on;
     
-    server_name ${DOMAIN};
+    server_name ${DOMAINS};
 
     server_tokens off;
 
-    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/${PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${PRIMARY_DOMAIN}/privkey.pem;
 
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_session_timeout 1d;

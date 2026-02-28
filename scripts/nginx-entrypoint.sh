@@ -3,10 +3,12 @@
 set -eu
 
 : "${CURRENT_ENV:?"CURRENT_ENV not defined."}"
-: "${DOMAIN:?"DOMAIN not defined."}"
+: "${DOMAINS:?"DOMAINS not defined."}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$SCRIPT_DIR/log.sh"
+
+PRIMARY_DOMAIN=$(echo "$DOMAINS" | awk '{print $1}')
 
 if [ "$CURRENT_ENV" = "development" ]; then
   CERT_DIR="/etc/nginx/certs"
@@ -14,7 +16,7 @@ if [ "$CURRENT_ENV" = "development" ]; then
   KEY="${CERT_DIR}/dev.key"
 
   if [ ! -f "$CRT" ] || [ ! -f "$KEY" ]; then
-    nginx_log "Generating self-signed certificate for ${DOMAIN} (development only)..."
+    nginx_log "Generating self-signed certificate for ${DOMAINS} (development only)..."
 
     mkdir -p "$CERT_DIR"
 
@@ -29,12 +31,12 @@ if [ "$CURRENT_ENV" = "development" ]; then
       -days 3650 \
       -keyout "$KEY" \
       -out "$CRT" \
-      -subj "/CN=${DOMAIN}"
+      -subj "/CN=${PRIMARY_DOMAIN}"
   else
-    nginx_log "Reusing existing development self-signed certificate for ${DOMAIN}."
+    nginx_log "Reusing existing development self-signed certificate for ${DOMAINS}."
   fi
 elif [ "$CURRENT_ENV" = "production" ]; then
-  nginx_log "Using externally managed certificates for ${DOMAIN} (no self-signed generation)."
+  nginx_log "Using externally managed certificates for ${DOMAINS} (no self-signed generation)."
 else
   nginx_log "Unsupported CURRENT_ENV='${CURRENT_ENV}'. Expected 'development' or 'production'."
   exit 1

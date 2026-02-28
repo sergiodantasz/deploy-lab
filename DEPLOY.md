@@ -100,12 +100,12 @@ nano .env
 Key variables (summary):
 
 - **`CURRENT_ENV`**: `development` or `production` (controls which Nginx templates are rendered and how TLS is handled).
-- **`DOMAIN`**: public domain used by Nginx and (in production) by Certbot/Let's Encrypt.
+- **`DOMAINS`**: space-separated list of public domains used by Nginx and (in production) by Certbot/Let's Encrypt. Use quotes when multiple: `DOMAINS="sergiodantas.space www.sergiodantas.space"`. The first domain is used as the certificate directory name.
 - **`EMAIL`**: email used by Let's Encrypt (production only; used for expiry notices etc.).
 - **`NGINX_UPSTREAM_SERVICE`**: internal name Nginx uses to reach the app (default: `app` in the Compose network).
 
 > [!NOTE]
-> The values in `.env.example` are placeholders. When you copy it, do not keep the defaults in production: replace them with real values (database name/user/password, domain, email, secret key, etc.) and review the rest of the `.env` file to keep related variables consistent.
+> The values in `.env.example` are placeholders. When you copy it, do not keep the defaults in production: replace them with real values (database name/user/password, domains, email, secret key, etc.) and review the rest of the `.env` file to keep related variables consistent.
 
 > [!CAUTION]
 > Start with `CURRENT_ENV=development` to validate the full stack with a self-signed certificate before switching to production.
@@ -187,20 +187,51 @@ Once you are satisfied with the development setup, you can move to the productio
 
 Before you start the production stack:
 
-- Your `DOMAIN` must point to the server public IP (A/AAAA records).
+- All domains in `DOMAINS` must point to the server public IP (A/AAAA records). For example, if using `sergiodantas.space www.sergiodantas.space`, both must resolve to the server.
 - The firewall (UFW, cloud provider security group, etc.) must allow inbound traffic on ports 80 and 443.
 
 Key `.env` settings for production (overview):
 
 - **`CURRENT_ENV`**: `production`
 - **`DEBUG`**: `OFF`
-- **`ALLOWED_HOSTS`**: `<your-domain>` (no `*`; include only the real domain or subdomains you use)
+- **`ALLOWED_HOSTS`**: comma-separated list of domains (no `*`; e.g. `sergiodantas.space,www.sergiodantas.space`)
 - **`SECRET_KEY`**: long, random, unique; treat it as a secret, not committed to Git
-- **`DOMAIN`**: `<your-domain>` (must match the DNS record used for HTTPS)
+- **`DOMAINS`**: space-separated list; use quotes when multiple (e.g. `DOMAINS="sergiodantas.space www.sergiodantas.space"`); must match the DNS records used for HTTPS
 - **`EMAIL`**: `<your-email>` (address that will receive Let's Encrypt expiry notices, etc.)
 
 > [!IMPORTANT]
 > In production, Nginx does not generate a self-signed certificate. The certificate is issued and renewed by the `certbot` container and mounted into Nginx.
+
+> [!TIP]
+> To serve both `sergiodantas.space` and `www.sergiodantas.space`, set `DOMAINS="sergiodantas.space www.sergiodantas.space"` (quotes required). Certbot will issue a single SAN certificate covering both. Ensure both hostnames resolve to the server and that `ALLOWED_HOSTS` includes both (comma-separated).
+
+### Prepare Certbot directories (before first run)
+
+Create the Certbot directory structure with the right group and permissions *before* starting the stack. That way, when Certbot creates certificates (and renews them later), the files will inherit the correct group and `setup.sh` will be able to find them.
+
+From the app directory (e.g. `/deploy-lab`):
+
+```bash
+# Create a group that will have access to Certbot files
+sudo groupadd certbot-access
+
+# Add your user to the group (log out/in after this for it to take effect)
+sudo usermod --append --groups certbot-access sergio
+
+# Create the certbot directory structure (Docker needs these to exist for the volume mounts)
+mkdir -p certbot/conf certbot/www
+
+# Set group ownership
+sudo chgrp -R certbot-access certbot
+
+# Grant execute on directories so the group can traverse the tree
+sudo chmod -R g+X certbot
+
+# Set setgid so new files created by Certbot (on issuance and renewal) inherit certbot-access
+sudo chmod -R g+s certbot
+```
+
+Log out and back in so your new group membership is active, then continue with the first production start.
 
 ### First production start (certificate issuance phase)
 
@@ -222,32 +253,16 @@ Follow Certbot logs until the certificate is issued:
 docker compose -f compose.yaml -f compose.prod.yaml logs -f certbot
 ```
 
-After issuance, you should have:
+After issuance, you should have (the first domain in `DOMAINS` is used as the directory name):
 
-- `./certbot/conf/live/${DOMAIN}/fullchain.pem`
-- `./certbot/conf/live/${DOMAIN}/privkey.pem`
+- `./certbot/conf/live/<first-domain>/fullchain.pem`
+- `./certbot/conf/live/<first-domain>/privkey.pem`
 
 ### Switch Nginx from challenge to app config (after cert exists)
 
 Once the certificate exists, switch Nginx from the temporary challenge configuration to the full app configuration.
 
-If `setup.sh` keeps saying that the certificate does not exist even though the files are present under `certbot/conf/live/${DOMAIN}`, it is usually a permission issue on the host. A safer approach is to use a dedicated group instead of granting execute to "others". On the server, you can do:
-
-```bash
-# Create a group that will have access to Certbot files
-sudo groupadd certbot-access
-
-# Make sure your user is in that group (log out/in after this)
-sudo usermod --append --groups certbot-access sergio
-
-# Set group ownership for the certbot directory
-sudo chgrp -R certbot-access certbot
-
-# Grant execute permission on directories (so the group can traverse the tree)
-sudo chmod -R g+X certbot
-```
-
-After re-logging into the server (so the new group membership takes effect), rerun the setup:
+Rerun the setup:
 
 ```bash
 # Re-render Nginx configuration for production (now using app.conf)

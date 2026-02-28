@@ -11,7 +11,7 @@ server {
     listen 80;
     listen [::]:80;
 
-    server_name ${DOMAIN};
+    server_name ${DOMAINS};
 
     server_tokens off;
 
@@ -24,7 +24,7 @@ server {
 
     http2 on;
     
-    server_name ${DOMAIN};
+    server_name ${DOMAINS};
 
     server_tokens off;
 

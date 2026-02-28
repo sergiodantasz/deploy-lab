@@ -14,7 +14,7 @@ if [ -f "$ROOT/.env" ]; then
 fi
 
 setup_log "Current CURRENT_ENV           : ${CURRENT_ENV-<undefined>}"
-setup_log "Current DOMAIN                : ${DOMAIN-<undefined>}"
+setup_log "Current DOMAINS               : ${DOMAINS-<undefined>}"
 setup_log "Current NGINX_UPSTREAM_SERVICE: ${NGINX_UPSTREAM_SERVICE-<undefined>}"
 setup_prompt "Do you want to run setup with these values? [y/N]:" CONFIRM_SETUP
 if [ "$CONFIRM_SETUP" != "y" ] && [ "$CONFIRM_SETUP" != "Y" ]; then
@@ -41,11 +41,14 @@ fi
 
 mkdir -p "$DEST"
 
+PRIMARY_DOMAIN=$(echo "${DOMAINS-}" | awk '{print $1}')
+
 render_template() {
   local f="$1" out="$2"
   while IFS= read -r line; do
     line="${line//\$\{NGINX_UPSTREAM_SERVICE\}/$NGINX_UPSTREAM_SERVICE}"
-    line="${line//\$\{DOMAIN\}/$DOMAIN}"
+    line="${line//\$\{DOMAINS\}/$DOMAINS}"
+    line="${line//\$\{PRIMARY_DOMAIN\}/$PRIMARY_DOMAIN}"
     printf '%s\n' "$line"
   done < "$f" > "$out"
 }
@@ -54,7 +57,7 @@ TEMPLATE_BASENAME=""
 
 if [ "$CURRENT_ENV" = "production" ]; then
   CERTBOT_CONF="$ROOT/certbot/conf"
-  CERT_FILE="${CERTBOT_CONF}/live/${DOMAIN}/fullchain.pem"
+  CERT_FILE="${CERTBOT_CONF}/live/${PRIMARY_DOMAIN}/fullchain.pem"
 
   if [ -f "$CERT_FILE" ]; then
     TEMPLATE_BASENAME="app.conf"
@@ -87,4 +90,4 @@ setup_log "Nginx configuration ready!"
 setup_log "  - Templates  : ${SRC} → ${DEST}"
 setup_log "  - Environment: ${CURRENT_ENV}"
 setup_log "  - Upstream   : ${NGINX_UPSTREAM_SERVICE}"
-setup_log "  - Domain     : ${DOMAIN}"
+setup_log "  - Domains    : ${DOMAINS}"
