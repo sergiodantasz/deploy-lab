@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 log() { printf '%s\n' "$*"; }
 log_error() { printf '%b%s\n' $'\033[1;31m[ ERROR ]\033[0m ' "$*" >&2; }
-log_success() { printf '%b%s\n' $'\033[1;32m[ OK ]\033[0m ' "$*"; }
+log_success() { printf '%b%s\n' $'\033[1;32m[ SUCCESS ]\033[0m ' "$*"; }
 
 catch_errors() {
   local rc=$?
