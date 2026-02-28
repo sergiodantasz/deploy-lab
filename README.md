@@ -1,28 +1,26 @@
 # Deploy Lab
 
-A personal reference repository for notes and experiments on deploying applications to Linux-based systems. It includes a minimal Django/DRF example app, Docker Compose stacks for development and production, server provisioning and hardening steps, and a full continuous deployment (CD) pipeline using GitHub Actions.
+Personal reference for deploying applications to Linux-based systems. Includes a minimal Django/DRF API, Docker Compose stacks for development and production, server provisioning and hardening steps, tests (pytest), CI and CD pipelines using GitHub Actions.
 
-Use this repo as a step-by-step guide: start with the server and Docker setup, then run the app locally or on a VM, and finally wire GitHub Actions to deploy on every push to `main`.
+Use this repo as a step-by-step guide: start with the server setup, run the app locally or on a VM, run tests, then wire GitHub Actions so CI runs on every push/PR and deploy runs on `main` only after CI passes.
 
 ## Guides
 
-The following documents form the main path to understand and run the project: the demo application, how to prepare the server, and how to set up continuous deployment. Read them in this order when you are setting things up from scratch.
-
 ### Application
 
-[APPLICATION.md](APPLICATION.md) describes the demo application: a small REST API (Django + Django REST Framework) that simulates a task list. It documents the API endpoints, the health check used for monitoring and load balancers, and example `curl` usage. It also explains how to **run the app locally with Docker**: environment setup, Nginx config and certificates via `./scripts/setup.sh`, and starting the stack with `docker compose` (including `--watch` for development so code changes sync and the app restarts automatically.
+[APPLICATION.md](APPLICATION.md) — Describes the demo REST API (task list), its endpoints, the health check used for monitoring, and how to run tests. Explains how to run locally with Docker: environment setup via `./scripts/setup.sh`, Nginx config and certificates, and starting the stack with `docker compose` (including `--watch` for development so code changes sync and the app restarts automatically).
 
 ### Server
 
-[SERVER.md](SERVER.md) covers the **production server** side: VM requirements (e.g. Ubuntu 24.04, open ports 22/80/443), SSH key and client config for access, firewall (UFW), and optional hardening (e.g. Fail2ban, non-root user, `/deploy-lab` directory and permissions). Follow this before deploying the application so the host is secure and ready for Docker and Nginx.
+[SERVER.md](SERVER.md) — Covers the production server: VM requirements (Ubuntu 24.04, ports 22/80/443), SSH key and client config, UFW firewall, Fail2ban for SSH protection, and Docker install. Also covers the `/deploy-lab` directory and permissions. Follow this before deploying so the host is secure and ready.
 
 ### Deploy
 
-[DEPLOY.md](DEPLOY.md) walks through **continuous deployment (CD)** from an empty server to a live app. It assumes the server is already prepared (see [SERVER.md](SERVER.md)) and covers: marking the repo as a safe directory for Git, configuring GitHub access via SSH (deploy key), environment variables and `.env`, generating Nginx config and dummy SSL for development, running the stack in development and production (Compose files and commands), TLS with Let’s Encrypt/Certbot, creating the `deploy` user and the SSH key used by GitHub Actions, sudoers so `deploy` can run only the deploy command, the GitHub Actions workflow that runs on push to `main`, and how to test and verify the pipeline. Finish here to have push-to-deploy working end-to-end.
+[DEPLOY.md](DEPLOY.md) — Walks through CD from an empty server to a live app. Covers Git safe directory, deploy key for GitHub, environment variables and `.env`, Nginx config and dummy SSL for development, running the stack in dev and production, TLS with Let's Encrypt/Certbot, the `deploy` user and restricted SSH key for GitHub Actions, and the workflows: CI (lint, format, Django check, migrations, tests) runs on push/PR; Deploy runs on `main` only after CI passes.
 
-## Docker (command reference)
+### Docker
 
-[DOCKER.md](DOCKER.md) is a reference of useful Docker and Docker Compose commands: listing and managing containers, images, volumes, and networks, plus examples of building and running the app with Compose. Handy when you need to inspect, restart, or clean up resources. It is not required to follow the Application → Server → Deploy flow; use it as needed.
+[DOCKER.md](DOCKER.md) — Reference of useful Docker and Compose commands: containers, images, volumes, networks. Handy for inspecting, restarting, or cleaning up. Not required for the main flow; use as needed.
 
 ## License
 

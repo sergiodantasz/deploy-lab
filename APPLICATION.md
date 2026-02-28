@@ -42,6 +42,25 @@ GET /health/
 
 This endpoint is intended for monitoring tools, container health checks, load balancers, and deployment verification.
 
+## Tests
+
+The project includes tests for the health endpoint and the tasks API (list, create, retrieve). Tests use pytest and pytest-django.
+
+Run tests locally (from the project root, with `.env` configured):
+
+```bash
+uv run pytest src/ -v
+```
+
+Or using Python directly after activating the virtual environment:
+
+```bash
+source .venv/bin/activate
+pytest src/ -v
+```
+
+CI (`.github/workflows/ci.yaml`) runs on every push and pull request to `main`: Ruff lint/format, Django check, migrations, and tests. Deploy (`.github/workflows/deploy.yaml`) runs only after CI passes.
+
 ## Run locally with Docker
 
 To run the application on your machine using Docker (app + PostgreSQL + Nginx with a self-signed certificate), copy `.env.example` to `.env` and set `CURRENT_ENV=development`. Adjust other values if needed (e.g. database password). From the project root, run the setup script so Nginx gets the development config and certificates:
