@@ -308,6 +308,37 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d --build
 docker compose -f compose.yaml -f compose.prod.yaml down
 ```
 
+### Adding another domain to an existing certificate
+
+If you already have a certificate (e.g. for `<your-domain>.com`) and want to add another domain (e.g. `www.<your-domain>.com`), you do not need to delete the certificate. Use Certbot's `--expand` flag to add the new domain to the existing certificate:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml exec certbot certbot certonly \
+  --webroot \
+  -w /var/www/certbot \
+  -d <your-domain>.com \
+  -d www.<your-domain>.com \
+  --expand \
+  --email <your-email@example.com> \
+  --agree-tos \
+  --no-eff-email \
+  --non-interactive
+```
+
+Replace the placeholders with your values, then update `.env` (for example, set `DOMAINS="<your-domain>.com www.<your-domain>.com"` and adjust `ALLOWED_HOSTS` if needed, such as `ALLOWED_HOSTS=<your-domain>.com,www.<your-domain>.com`).
+
+Re-run the setup script:
+
+```bash
+./scripts/setup.sh
+```
+
+And then restart Nginx:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml restart nginx
+```
+
 ## GitHub Actions
 
 This repository uses a single workflow (`.github/workflows/build-and-deploy.yaml`), named **Build and Deploy**, with two jobs:
